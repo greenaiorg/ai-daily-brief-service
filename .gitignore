@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.venv/
+env/
+ENV/
+env.bak/
+
+# Dotenv
+.env
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
