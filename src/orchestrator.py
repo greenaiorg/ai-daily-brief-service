@@ -9,6 +9,7 @@ sys.path.append(os.path.dirname(__file__))
 from scraper import get_latest_papers
 from summarizer import summarize_texts
 from emailer import send_email
+from subscriptions import load_subscribers
 
 
 def run():
@@ -18,6 +19,7 @@ def run():
     abstracts = [p["summary"] for p in papers]
     # Summarize using the summarizer stub
     summaries = summarize_texts(abstracts)
+
     # Build email body
     lines = []
     for paper, summary in zip(papers, summaries):
@@ -26,9 +28,15 @@ def run():
         lines.append(f"Summary: {summary}")
         lines.append("")
     body = "\n".join(lines)
-    # Recipients list from environment variable (comma‑separated)
-    recipients = os.getenv("DAILY_BRIEF_RECIPIENTS", "")
-    for rcpt in [r.strip() for r in recipients.split(",") if r.strip()]:
+
+    # Load recipients from subscription list
+    recipients = load_subscribers()
+    # If no subscribers, fallback to env variable list
+    if not recipients:
+        env_recipients = os.getenv("DAILY_BRIEF_RECIPIENTS", "")
+        recipients = [r.strip() for r in env_recipients.split(",") if r.strip()]
+
+    for rcpt in recipients:
         send_email(to=rcpt, subject="Daily AI Research Brief", body=body)
 
 
